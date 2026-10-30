@@ -218,11 +218,16 @@ Caffeine 缓存 `codeToTarget`（`maximumSize=10000`，`expireAfterWrite=10m`）
 
 ```
 url-shortener/
-├── README.md
+├── README.md                    交付说明（启动、API、设计决策、测试）
+├── AGENT.MD                     项目总览与工作约定（给接手的人/AI）
 ├── pom.xml                      Java 17、Spring Boot 3.2.1，所有版本均锁定
 ├── Dockerfile  docker-compose.yml
 ├── mvnw  mvnw.cmd  .mvn/wrapper/
-├── docs/TEST_CASES.md           固化的验收用例清单：39 条编号用例
+├── docs/
+│   ├── spec.md                  原始需求规范
+│   ├── design.md                设计文档：架构、数据模型、5 项决策与取舍
+│   ├── task.md                  任务清单：T1–T8 及完成状态
+│   └── TEST_CASES.md            固化的验收用例清单：39 条编号用例
 ├── scripts/smoke-test.sh        针对运行中实例的端到端 curl 冒烟脚本
 └── src/
     ├── main/
