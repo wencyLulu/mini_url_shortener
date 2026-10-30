@@ -1,0 +1,8 @@
+# Line endings are pinned so that shell scripts stay runnable on every platform:
+# a CRLF in "#!/usr/bin/env bash" makes bash reject the file with "bad interpreter".
+*        text=auto
+*.sh     text eol=lf
+mvnw     text eol=lf
+*.cmd    text eol=crlf
+*.bat    text eol=crlf
+*.jar    binary
