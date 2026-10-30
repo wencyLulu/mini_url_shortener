@@ -265,13 +265,19 @@ url-shortener/
     │       ├── application.yml
     │       ├── db/migration/V1__create_schema.sql
     │       └── static/index.html
-    └── test/java/com/example/urlshortener/   24 tests
+    ├── docs/TEST_CASES.md           frozen acceptance matrix: 37 numbered cases
+    ├── scripts/smoke-test.sh        end-to-end curl smoke test against a running instance
+    └── test/java/com/example/urlshortener/   27 tests
 ```
 
 Layering is strictly controller → service → repository; controllers only bind HTTP, and all errors
 are translated in one `@RestControllerAdvice`.
 
 ## 5. Tests
+
+The frozen acceptance matrix lives in **[`docs/TEST_CASES.md`](docs/TEST_CASES.md)** — 37 numbered
+cases (TC-001 … TC-037), each mapped to a scenario, an expected result and the test method that
+enforces it.
 
 ```bash
 ./mvnw verify
@@ -285,6 +291,20 @@ are translated in one `@RestControllerAdvice`.
 | `LinkTargetCacheTest` | cache population and eviction |
 | `Base62CodeGeneratorTest` | code length, alphabet, 20 000 distinct codes |
 | `UrlValidatorTest` | each validation rule |
+
+Every integration case resets the database in `@BeforeEach`, so results never depend on execution
+order, and every time calculation goes through the injected UTC `Clock`.
+
+### Manual smoke test
+
+```bash
+./mvnw spring-boot:run                                  # terminal A
+BASE_URL=http://localhost:8080 ./scripts/smoke-test.sh   # terminal B
+```
+
+28 checks against a running instance (create, redirect, stats, 404/400/409/410, expiry, 50
+concurrent redirects); the script prints a PASS/FAIL line per check and exits non-zero if any
+check fails.
 
 ## 6. Note on scaling out (out of scope)
 

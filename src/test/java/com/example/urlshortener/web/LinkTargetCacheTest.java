@@ -7,6 +7,7 @@ import com.example.urlshortener.repository.LinkRepository;
 import com.example.urlshortener.service.LinkService;
 import com.example.urlshortener.service.LinkTarget;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,6 +35,16 @@ class LinkTargetCacheTest {
 
     @Autowired
     private CacheManager cacheManager;
+
+    /** Start from an empty database (and an empty cache) so cache state is never inherited. */
+    @BeforeEach
+    void cleanState() {
+        linkRepository.deleteAll();
+        Cache cache = cacheManager.getCache(LinkService.TARGET_CACHE);
+        if (cache != null) {
+            cache.clear();
+        }
+    }
 
     @Test
     void targetIsCachedAndEvictedWhenTheLinkExpires() {

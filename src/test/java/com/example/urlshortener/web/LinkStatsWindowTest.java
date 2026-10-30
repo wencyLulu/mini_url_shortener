@@ -9,6 +9,7 @@ import com.example.urlshortener.domain.LinkDailyVisit;
 import com.example.urlshortener.repository.LinkDailyVisitRepository;
 import com.example.urlshortener.repository.LinkRepository;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,6 +35,12 @@ class LinkStatsWindowTest {
 
     @Autowired
     private LinkDailyVisitRepository dailyVisitRepository;
+
+    /** Start from an empty database so the window boundaries never see leftovers. */
+    @BeforeEach
+    void cleanDatabase() {
+        linkRepository.deleteAll();
+    }
 
     @Test
     void windowContainsLastSevenDaysOnlyAndFillsMissingDaysWithZero() throws Exception {

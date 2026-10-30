@@ -8,6 +8,7 @@ import com.example.urlshortener.domain.Link;
 import com.example.urlshortener.repository.LinkRepository;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -44,6 +46,15 @@ class LinkApiIntegrationTest {
 
     @Autowired
     private LinkRepository linkRepository;
+
+    /**
+     * Every case starts from an empty database (link_daily_visit cascades from links), so no result
+     * ever depends on execution order or on which cases ran before.
+     */
+    @BeforeEach
+    void cleanDatabase() {
+        linkRepository.deleteAll();
+    }
 
     @Test
     void createRedirectDetailsAndStats() throws Exception {
@@ -203,10 +214,36 @@ class LinkApiIntegrationTest {
 
         mockMvc.perform(get("/api/links").param("size", "50"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[0].code").value(second))
                 .andExpect(jsonPath("$.content[1].code").value(first))
-                .andExpect(jsonPath("$.total_elements").value(org.hamcrest.Matchers.greaterThanOrEqualTo(2)))
-                .andExpect(jsonPath("$.total_pages").value(1));
+                .andExpect(jsonPath("$.total_elements").value(2))
+                .andExpect(jsonPath("$.total_pages").value(1))
+                .andExpect(jsonPath("$.page").value(0));
+    }
+
+    @Test
+    void emptyBodyIsRejected() throws Exception {
+        mockMvc.perform(post("/api/links").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("MALFORMED_JSON"));
+    }
+
+    @Test
+    void aliasWithIllegalCharacterIsRejected() throws Exception {
+        mockMvc.perform(post("/api/links")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"url\":\"https://example.com\",\"code\":\"ab!\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("INVALID_CODE"));
+    }
+
+    @Test
+    void unsupportedMethodReturns405() throws Exception {
+        mockMvc.perform(delete("/api/links/somecode"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.status").value(405))
+                .andExpect(jsonPath("$.error").value("METHOD_NOT_ALLOWED"));
     }
 
     @Test
