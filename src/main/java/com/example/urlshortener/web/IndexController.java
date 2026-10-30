@@ -1,5 +1,7 @@
 package com.example.urlshortener.web;
 
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -21,8 +23,10 @@ public class IndexController {
 
     @GetMapping({"/", "/index.html"})
     public ResponseEntity<Resource> index() {
+        // The charset must be explicit: HTML served as text/html without it is decoded as
+        // ISO-8859-1 by default, which garbles the Chinese copy.
         return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_HTML)
+                .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
                 .body(indexPage);
     }
 }

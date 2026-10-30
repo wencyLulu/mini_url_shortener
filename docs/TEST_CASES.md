@@ -3,7 +3,7 @@
 本文件是 URL Shortener 的**验收基线**：每一条需求都对应到具体用例、具体断言与具体代码位置。
 用例分两层：
 
-1. **自动化用例**（`./mvnw verify`，27 个）——随代码提交，CI 可重复执行，是主要验收依据。
+1. **自动化用例**（`./mvnw verify`，29 个）——随代码提交，CI 可重复执行，是主要验收依据。
 2. **手工冒烟脚本**（`scripts/smoke-test.sh`）——对一个已启动的实例做端到端 curl 验证，适合人工验收。
 
 ## 固化规则
@@ -72,6 +72,8 @@
 |---|---|---|---|---|
 | TC-029 | 并发重定向不丢计数 | 32 线程 × 20 次 = 640 次真实 HTTP 重定向 | 全部返回 302；`visit_count` **= 640**；今日桶 **= 640**（精确等于，非区间） | `RedirectConcurrencyTest.noVisitIsLostWhenManyClientsRedirectAtOnce` |
 | TC-030 | 计数为 SQL 原子自增 | 代码审查 | 使用 `SET count = count + 1`，不在 Java 中读-改-写；`links` 行锁串行化同链接并发 | README §3.4 |
+| TC-038 | 并发抢占同一自定义短码 | 16 线程同时 POST `code:"race01"` | **恰好 1 个 201**，其余 15 个 409；库中只有 1 条记录（由唯一约束裁决，不靠进程内锁） | `LinkCreationConcurrencyTest.racingForTheSameCustomAliasProducesExactlyOneWinner` |
+| TC-039 | 并发创建互不串码 | 16 线程同时 POST 不同 URL（不指定短码） | 全部 201；返回的 16 个短码**互不相同** | `LinkCreationConcurrencyTest.racingWithoutAnAliasGivesEveryRequestItsOwnCode` |
 
 ## 六、缓存
 
@@ -100,7 +102,7 @@
 ## 执行方式
 
 ```bash
-# 自动化（27 个用例）
+# 自动化（29 个用例）
 ./mvnw clean verify
 
 # 手工冒烟（需先启动服务）

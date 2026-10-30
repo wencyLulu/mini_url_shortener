@@ -222,7 +222,7 @@ url-shortener/
 ├── pom.xml                      Java 17、Spring Boot 3.2.1，所有版本均锁定
 ├── Dockerfile  docker-compose.yml
 ├── mvnw  mvnw.cmd  .mvn/wrapper/
-├── docs/TEST_CASES.md           固化的验收用例清单：37 条编号用例
+├── docs/TEST_CASES.md           固化的验收用例清单：39 条编号用例
 ├── scripts/smoke-test.sh        针对运行中实例的端到端 curl 冒烟脚本
 └── src/
     ├── main/
@@ -238,7 +238,7 @@ url-shortener/
     │       ├── application.yml
     │       ├── db/migration/V1__create_schema.sql
     │       └── static/index.html
-    └── test/java/com/example/urlshortener/   27 个测试
+    └── test/java/com/example/urlshortener/   29 个测试
 ```
 
 分层严格为 controller → service → repository：controller 只负责绑定 HTTP，所有异常统一在
@@ -246,8 +246,8 @@ url-shortener/
 
 ## 5. 测试
 
-固化的验收用例清单见 **[`docs/TEST_CASES.md`](docs/TEST_CASES.md)** —— 37 条编号用例
-（TC-001 … TC-037），每条都对应到场景、预期结果以及执行它的测试方法。
+固化的验收用例清单见 **[`docs/TEST_CASES.md`](docs/TEST_CASES.md)** —— 39 条编号用例
+（TC-001 … TC-039），每条都对应到场景、预期结果以及执行它的测试方法。
 
 ```bash
 ./mvnw verify
@@ -257,6 +257,7 @@ url-shortener/
 |---|---|
 | `LinkApiIntegrationTest` | 创建 → 重定向 → 详情 → 统计全链路，参数校验，404/409/410，非法 JSON，列表 |
 | `RedirectConcurrencyTest` | 32 线程 × 20 次真实 HTTP 重定向 → 计数精确等于 640（无丢失更新） |
+| `LinkCreationConcurrencyTest` | 16 线程抢同一自定义短码 → 恰好 1 个 201 + 15 个 409；16 线程并发创建 → 短码互不相同 |
 | `LinkStatsWindowTest` | 7 天窗口的边界、排序、补零 |
 | `LinkTargetCacheTest` | 缓存写入与失效 |
 | `Base62CodeGeneratorTest` | 短码长度、字母表、20 000 次生成无重复 |

@@ -250,7 +250,7 @@ class LinkApiIntegrationTest {
     void rootServesTheMinimalUi() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Mini URL Shortener")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("迷你短链服务")));
     }
 
     private void assertInvalidUrl(String body) throws Exception {
