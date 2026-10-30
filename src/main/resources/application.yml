@@ -1,0 +1,55 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: url-shortener
+
+  datasource:
+    url: jdbc:h2:file:./data/urlshortener;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=20000
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    # Schema is owned by Flyway; Hibernate must never touch it.
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        timezone.default_storage: NORMALIZE_UTC
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    # JSON bodies use snake_case (short_url, created_at, visit_count, expires_at) as in the spec.
+    property-naming-strategy: SNAKE_CASE
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=10000,expireAfterWrite=10m,recordStats
+
+app:
+  # Base URL used to build the "short_url" field. Override with APP_BASE_URL in production.
+  base-url: ${APP_BASE_URL:http://localhost:8080}
+  code:
+    length: 7
+    max-generation-attempts: 10
+    # Custom aliases must not collide with these static/API path segments.
+    reserved-codes: api,static,index,index.html,favicon.ico,actuator,health,error,robots.txt
+  stats:
+    window-days: 7
+
+logging:
+  level:
+    root: INFO
+    com.example.urlshortener: INFO
