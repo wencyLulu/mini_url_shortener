@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mini URL Shortener</title>
+    <title>迷你短链服务</title>
     <link rel="icon" href="data:,">
     <style>
         :root {
@@ -20,7 +20,8 @@
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+                         "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
             background: linear-gradient(160deg, var(--bg), #1e293b 60%);
             min-height: 100vh;
             color: #0f172a;
@@ -108,45 +109,45 @@
 <body>
 <div class="wrap">
     <header>
-        <h1>Mini URL Shortener</h1>
-        <p>Paste a long URL, get a short one. Every visit is counted.</p>
+        <h1>迷你短链服务</h1>
+        <p>粘贴长链接，生成短链接。每一次访问都会被计数。</p>
     </header>
 
     <div class="card">
         <div class="field">
-            <label for="url">Long URL</label>
+            <label for="url">长链接</label>
             <input id="url" type="text" placeholder="https://example.com/some/very/long/path?query=1" autocomplete="off">
         </div>
         <div class="row">
             <div class="field">
-                <label for="code">Custom code (optional)</label>
+                <label for="code">自定义短码（可选）</label>
                 <input id="code" type="text" placeholder="myalias" autocomplete="off">
-                <div class="hint">3-32 characters, letters and digits only.</div>
+                <div class="hint">3–32 个字符，仅可包含字母和数字。</div>
             </div>
             <div class="field">
-                <label for="expires">Expires at (optional)</label>
+                <label for="expires">过期时间（可选）</label>
                 <input id="expires" type="datetime-local">
-                <div class="hint">After this moment redirects answer 410 Gone.</div>
+                <div class="hint">超过该时间后，访问短链将返回 410 Gone。</div>
             </div>
         </div>
-        <button id="create" type="button">Create short link</button>
+        <button id="create" type="button">生成短链接</button>
         <div class="error" id="error"></div>
     </div>
 
     <div class="card">
-        <h2 style="margin:0 0 14px;font-size:16px;">Latest links</h2>
+        <h2 style="margin:0 0 14px;font-size:16px;">最新链接</h2>
         <table>
             <thead>
             <tr>
-                <th style="width:150px;">Short</th>
-                <th>Original URL</th>
-                <th style="width:90px;">Visits</th>
-                <th style="width:110px;">Stats</th>
+                <th style="width:150px;">短链</th>
+                <th>原始链接</th>
+                <th style="width:90px;">访问数</th>
+                <th style="width:110px;">统计</th>
             </tr>
             </thead>
             <tbody id="rows"></tbody>
         </table>
-        <div class="empty" id="empty">No links yet.</div>
+        <div class="empty" id="empty">暂无链接。</div>
     </div>
 </div>
 
@@ -178,18 +179,18 @@
             tr.innerHTML = `
                 <td>
                     <a href="/${esc(link.code)}" target="_blank" rel="noreferrer">/${esc(link.code)}</a>
-                    <button class="copy" data-url="${esc(shortUrl)}">copy</button>
+                    <button class="copy" data-url="${esc(shortUrl)}">复制</button>
                 </td>
                 <td class="url" title="${esc(link.url)}">${esc(link.url)}</td>
                 <td>${link.visit_count}</td>
-                <td><a href="/api/links/${esc(link.code)}/stats" target="_blank" rel="noreferrer">7-day</a></td>`;
+                <td><a href="/api/links/${esc(link.code)}/stats" target="_blank" rel="noreferrer">近 7 日</a></td>`;
             rows.appendChild(tr);
         }
         rows.querySelectorAll('.copy').forEach(btn => {
             btn.addEventListener('click', async () => {
                 await navigator.clipboard.writeText(btn.dataset.url);
-                btn.textContent = 'copied';
-                setTimeout(() => btn.textContent = 'copy', 1200);
+                btn.textContent = '已复制';
+                setTimeout(() => btn.textContent = '复制', 1200);
             });
         });
     }
@@ -221,7 +222,7 @@
             document.getElementById('expires').value = '';
             await loadLinks();
         } catch (err) {
-            showError('Request failed: ' + err.message);
+            showError('请求失败：' + err.message);
         } finally {
             createBtn.disabled = false;
         }
@@ -231,7 +232,7 @@
         if (event.key === 'Enter') createBtn.click();
     });
 
-    loadLinks().catch(err => showError('Could not load links: ' + err.message));
+    loadLinks().catch(err => showError('无法加载链接列表：' + err.message));
 </script>
 </body>
 </html>
